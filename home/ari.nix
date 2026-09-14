@@ -162,6 +162,7 @@ in
       # desktop apps
       davinci-resolve
       ghostty
+      google-chrome
       termius
       vesktop
       adw-gtk3
