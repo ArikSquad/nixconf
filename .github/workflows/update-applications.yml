@@ -1,4 +1,4 @@
-name: Update T3 Code
+name: Update Applications
 
 on:
   schedule:
@@ -79,9 +79,12 @@ jobs:
         with:
           branch: automation/update-t3code
           delete-branch: true
-          commit-message: "chore: update T3 Code"
-          title: "chore: update T3 Code"
+          commit-message: "chore: update applications"
+          title: "chore: update applications"
           body: |
-            Automated update of the T3 Code AppImage pin.
+            Automated update of the AppImage pins.
+
+            Apps included:
+            - t3code
 
             The package was build-checked with `nix build .#t3code --no-link`.
