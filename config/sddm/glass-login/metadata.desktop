@@ -1,13 +1,13 @@
 [SddmGreeterTheme]
-Name=Theme
-Description=Theme
-Author=None
+Name=Glass Login
+Description=A quiet glass login screen for nixdots
+Author=ArikSquad
 Website=https://github.com/ArikSquad/nixdots
 License=GPL-3.0-or-later
 Type=sddm-theme
 Version=1.0
 ConfigFile=theme.conf
 MainScript=Main.qml
-Theme-Id=theme
+Theme-Id=glass-login
 Theme-API=2.0
 QtVersion=6

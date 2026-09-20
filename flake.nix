@@ -50,6 +50,14 @@
       overlays.default = overlay;
 
       packages.${system} = {
+        caelestia-island = import ./pkgs/caelestia-island.nix {
+          upstream = inputs.caelestia-shell.packages.${system}.with-cli.override {
+            extraRuntimeDeps = [ pkgs.libnotify ];
+          };
+          design = ./config/caelestia/island;
+          # Inter is the packaged fallback for Apple's SF Pro UI metrics.
+          font = "${pkgs.inter}/share/fonts/truetype/InterVariable.ttf";
+        };
         chatgpt = pkgs.chatgpt;
         mojangles = pkgs.mojangles;
         t3code = pkgs.t3code;

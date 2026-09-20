@@ -1,23 +1,25 @@
 { pkgs, ... }:
 let
-  pixel-sakura = pkgs.stdenvNoCC.mkDerivation {
-    pname = "sddm-theme";
+  glass-login = pkgs.stdenvNoCC.mkDerivation {
+    pname = "glass-login-sddm-theme";
     version = "1.0";
-    src = ../../config/sddm/pixel-sakura;
+    src = ../../config/sddm/glass-login;
 
     installPhase = ''
       runHook preInstall
-      mkdir -p $out/share/sddm/themes/theme
-      cp -r . $out/share/sddm/themes/theme
+      mkdir -p $out/share/sddm/themes/glass-login
+      cp -r . $out/share/sddm/themes/glass-login
       runHook postInstall
     '';
   };
 in
 {
+  fonts.packages = [ pkgs.inter ];
+
   services.displayManager.sddm = {
     enable = true;
     wayland.enable = true;
-    theme = "theme";
+    theme = "glass-login";
     extraPackages = with pkgs.qt6; [
       qtmultimedia
       qtsvg
@@ -25,5 +27,5 @@ in
     ];
   };
 
-  environment.systemPackages = [ pixel-sakura ];
+  environment.systemPackages = [ glass-login ];
 }
