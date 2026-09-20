@@ -1,6 +1,6 @@
 [SddmGreeterTheme]
 Name=Glass Login
-Description=A quiet glass login screen for nixdots
+Description=A macOS-inspired login screen for nixdots
 Author=ArikSquad
 Website=https://github.com/ArikSquad/nixdots
 License=GPL-3.0-or-later
