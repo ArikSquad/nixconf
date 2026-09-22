@@ -1,0 +1,22 @@
+ActivePillWindow 1.0 ActivePillWindow.qml
+TrayWindow 1.0 TrayWindow.qml
+CalendarPanel 1.0 CalendarPanel.qml
+Controller 1.0 Controller.qml
+Glass 1.0 Glass.qml
+GlassButton 1.0 GlassButton.qml
+GlassLabel 1.0 GlassLabel.qml
+Island 1.0 Island.qml
+IslandContent 1.0 IslandContent.qml
+IslandWindow 1.0 IslandWindow.qml
+LauncherWindow 1.0 LauncherWindow.qml
+Level 1.0 Level.qml
+Meter 1.0 Meter.qml
+MetricCard 1.0 MetricCard.qml
+NavButton 1.0 NavButton.qml
+NotificationCard 1.0 NotificationCard.qml
+PerformancePanel 1.0 PerformancePanel.qml
+Sparkline 1.0 Sparkline.qml
+Symbol 1.0 Symbol.qml
+singleton Tokens 1.0 Tokens.qml
+singleton IslandBridge 1.0 IslandBridge.qml
+WeatherPanel 1.0 WeatherPanel.qml

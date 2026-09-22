@@ -122,7 +122,9 @@ return {
         kbVolumeMute               = "SUPER + SHIFT + M",
 
         -- Misc
-        kbLauncher                 = "SUPER + SUPER_L",
+        -- The modifier-only launcher is installed in hypr-user.lua so it can
+        -- distinguish Super by itself from every SUPER + key shortcut.
+        kbLauncher                 = {},
         kbSession                  = "CTRL + ALT + Delete",
         kbShowSidebar              = "SUPER + N",
         kbClearNotifs              = "CTRL + ALT + C",

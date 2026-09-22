@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <defs>
+    <linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8fbde1"/>
+      <stop offset=".43" stop-color="#ced9d9"/>
+      <stop offset=".70" stop-color="#7c99c0"/>
+      <stop offset="1" stop-color="#1b4097"/>
+    </linearGradient>
+
+    <radialGradient id="blue2" cx="48%" cy="42%" r="75%">
+      <stop offset="0" stop-color="#63caff"/>
+      <stop offset=".40" stop-color="#3393f0"/>
+      <stop offset=".72" stop-color="#1b5dce"/>
+      <stop offset="1" stop-color="#081c66"/>
+    </radialGradient>
+
+    <filter id="softGlow2" x="-35%" y="-35%" width="170%" height="170%">
+      <feGaussianBlur stdDeviation="24"/>
+    </filter>
+
+    <filter id="wideBlur2" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="50"/>
+    </filter>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#sky2)"/>
+
+  <path
+    d="M-140 935
+       C260 610 550 790 905 635
+       C1260 480 1485 155 2050 -20
+       L2050 1130
+       L-140 1130 Z"
+    fill="url(#blue2)"/>
+
+  <path
+    d="M-145 560
+       C270 315 520 630 870 550
+       C1185 478 1380 220 1600 95"
+    fill="none"
+    stroke="#f0f2e5"
+    stroke-opacity=".22"
+    stroke-width="140"
+    stroke-linecap="round"
+    filter="url(#wideBlur2)"/>
+
+  <path
+    d="M-110 1025
+       C405 600 735 900 1125 530
+       C1400 270 1650 95 2020 0"
+    fill="none"
+    stroke="#9fe3ff"
+    stroke-opacity=".22"
+    stroke-width="26"
+    stroke-linecap="round"
+    filter="url(#softGlow2)"/>
+</svg>
