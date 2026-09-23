@@ -24,6 +24,7 @@ hl.monitor({
 hl.bind("Print", hl.dsp.exec_cmd("hyprshot -m output -m active"))
 hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd("screenshot-select"))
 hl.bind("SUPER + SHIFT + ALT + S", hl.dsp.exec_cmd("hyprshot -m region"))
+hl.bind("SUPER + SHIFT + G", hl.dsp.global("caelestia:gameMode"))
 
 hl.config({
     input = {

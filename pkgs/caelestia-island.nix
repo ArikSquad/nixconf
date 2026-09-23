@@ -10,6 +10,7 @@ upstream.overrideAttrs (old: {
     mkdir -p modules/island
     cp -r ${design}/. modules/island/
     cp ${../config/caelestia/overrides/Shortcuts.qml} modules/Shortcuts.qml
+    cp ${../config/caelestia/overrides/GameMode.qml} services/GameMode.qml
     substituteInPlace shell.qml \
       --replace-fail 'import "modules/drawers"' 'import "modules/island"' \
       --replace-fail '    Drawers {}' '    Island {}'

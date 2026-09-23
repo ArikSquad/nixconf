@@ -19,42 +19,49 @@ jobs:
       - name: Install Nix
         uses: DeterminateSystems/determinate-nix-action@v3.22.5
 
-      - name: Update T3 Code package
+      - name: Update and build T3 Code package
+        run: ./scripts/update-t3code.sh
+
+      - name: Update ChatGPT package
         shell: bash
         run: |
           set -euo pipefail
 
-          release=$(curl --fail --silent --show-error \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/pingdotgg/t3code/releases?per_page=100" \
-            | jq -r '
-              [
-                .[]
-                | select(.draft == false)
-                | .assets[]?
-                | select(.name | endswith("-x86_64.AppImage"))
-                | {name, url: .browser_download_url}
-              ]
-              | first
-              | [.name, .url]
-              | @tsv
-            ')
+          metadata=$(curl --fail --silent --show-error \
+            "https://persistent.oaistatic.com/codex-app-prod/linux/deb/dists/stable/main/binary-amd64/Packages" \
+            | python3 -c '
+          import sys
 
-          read -r asset_name asset_url <<< "$release"
-          if [[ -z "${asset_name:-}" || -z "${asset_url:-}" ]]; then
-            echo "No T3 Code x86_64 AppImage release asset found" >&2
+          for stanza in sys.stdin.read().strip().split("\n\n"):
+              fields = {
+                  key: value
+                  for line in stanza.splitlines()
+                  if ": " in line
+                  for key, value in [line.split(": ", 1)]
+              }
+              if fields.get("Package") == "chatgpt" and fields.get("Architecture") == "amd64":
+                  print(fields["Version"], fields["Filename"])
+                  break
+          ')
+
+          read -r version filename <<< "$metadata"
+          if [[ -z "${version:-}" || -z "${filename:-}" ]]; then
+            echo "No ChatGPT amd64 package found in OpenAI's package index" >&2
+            exit 1
+          fi
+          if [[ "$filename" != "pool/main/c/chatgpt/chatgpt_${version}_amd64.deb" ]]; then
+            echo "Unexpected ChatGPT package path: $filename" >&2
             exit 1
           fi
 
-          version="${asset_name#T3-Code-}"
-          version="${version%-x86_64.AppImage}"
+          asset_url="https://persistent.oaistatic.com/codex-app-prod/linux/deb/$filename"
           hash=$(nix store prefetch-file --json "$asset_url" | jq -r .hash)
 
           VERSION="$version" HASH="$hash" python3 - <<'PY'
           import os
           from pathlib import Path
 
-          path = Path("pkgs/t3code.nix")
+          path = Path("pkgs/chatgpt.nix")
           text = path.read_text()
           lines = text.splitlines(keepends=True)
 
@@ -71,8 +78,8 @@ jobs:
           path.write_text("".join(lines))
           PY
 
-      - name: Build T3 Code package
-        run: nix build .#t3code --no-link --print-build-logs
+      - name: Build ChatGPT package
+        run: nix build .#chatgpt --no-link --print-build-logs
 
       - name: Open update pull request
         uses: peter-evans/create-pull-request@v8
@@ -82,9 +89,10 @@ jobs:
           commit-message: "chore: update applications"
           title: "chore: update applications"
           body: |
-            Automated update of the AppImage pins.
+            Automated update of desktop application pins.
 
             Apps included:
             - t3code
+            - ChatGPT
 
-            The package was build-checked with `nix build .#t3code --no-link`.
+            Both packages were build-checked with Nix.

@@ -14,9 +14,10 @@ PanelWindow {
 
     required property string targetScreenName
     readonly property bool isFocusedScreen: root.targetScreenName === (Hypr.focusedMonitor?.name ?? "")
+    readonly property bool hasFullscreen: Hypr.focusedWorkspace?.toplevels.values.some(t => t.lastIpcObject.fullscreen > 1) ?? false
     readonly property var visibleItems: SystemTray.items.values.filter(item => item.status !== Status.Passive)
 
-    visible: root.isFocusedScreen && root.visibleItems.length > 0
+    visible: root.isFocusedScreen && !root.hasFullscreen && root.visibleItems.length > 0
     color: "transparent"
     anchors.top: true
     anchors.right: true

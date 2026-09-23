@@ -22,6 +22,14 @@ Scope {
     // qmllint disable unresolved-type
     CustomShortcut {
         // qmllint enable unresolved-type
+        name: "gameMode"
+        description: "Toggle game mode"
+        onPressed: GameMode.enabled = !GameMode.enabled
+    }
+
+    // qmllint disable unresolved-type
+    CustomShortcut {
+        // qmllint enable unresolved-type
         name: "showall"
         description: "Toggle launcher, dashboard and osd"
         onPressed: {

@@ -16,6 +16,7 @@ PanelWindow {
     readonly property var active: Hypr.activeToplevel
     readonly property var info: active?.lastIpcObject ?? null
     readonly property bool isFocusedScreen: root.targetScreenName === (Hypr.focusedMonitor?.name ?? "")
+    readonly property bool hasFullscreen: Hypr.focusedWorkspace?.toplevels.values.some(t => t.lastIpcObject.fullscreen > 1) ?? false
     readonly property string appName: friendlyName(info?.class ?? "")
     readonly property var workspaceWindows: active?.workspace?.toplevels?.values ?? []
 
@@ -29,7 +30,7 @@ PanelWindow {
             Hypr.dispatch(command + " address:" + info.address);
     }
 
-    visible: root.isFocusedScreen && root.active !== null
+    visible: root.isFocusedScreen && !root.hasFullscreen && root.active !== null
     color: "transparent"
     anchors.top: true
     anchors.left: true
@@ -43,6 +44,7 @@ PanelWindow {
     mask: Region { item: surface; radius: surface.radius }
 
     onActiveChanged: if (!active) expanded = false
+    onVisibleChanged: if (!visible) expanded = false
     HyprlandFocusGrab { active: root.expanded; windows: [root]; onCleared: root.expanded = false }
 
     Glass {
