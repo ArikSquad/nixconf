@@ -59,11 +59,11 @@
 
 let
   pname = "chatgpt";
-  version = "26.810.52044";
+  version = "26.924.51851";
 
   src = fetchurl {
     url = "https://persistent.oaistatic.com/codex-app-prod/linux/deb/pool/main/c/chatgpt/chatgpt_${version}_amd64.deb";
-    hash = "sha256-cIoVobt24rt/DjduUUU5H6J3rTpkBXwdMlN73CobTm4=";
+    hash = "sha256-fSW5n+ObA83D2DYx+yA9t3GGeIpTOHreDnBqJh6JaTU=";
   };
 
   desktopItem = makeDesktopItem {
