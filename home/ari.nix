@@ -105,7 +105,6 @@
 in {
   imports = [
     inputs.caelestia-shell.homeManagerModules.default
-    inputs.spicetify-nix.homeManagerModules.spicetify
   ];
 
   home = {
@@ -259,7 +258,6 @@ in {
   home.sessionSearchVariables.QT_PLUGIN_PATH = ["${pkgs.qtengine}/lib/qt-6/plugins"];
 
   programs.home-manager.enable = true;
-  programs.spicetify.enable = true;
   fonts.fontconfig.enable = true;
 
   xdg.configFile = {

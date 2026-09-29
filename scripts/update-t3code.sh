@@ -10,17 +10,25 @@ release=$(curl --fail --silent --show-error \
     [
       .[]
       | select(.draft == false)
+      | select((.name // "") | startswith("T3 Code Nightly "))
+      | select(.tag_name | test("^v[0-9]+\\.[0-9]+\\.[0-9]+-nightly\\.[0-9]{8}\\.[0-9]+$"))
+      | . as $release
       | .assets[]?
-      | select(.name | endswith("-x86_64.AppImage"))
-      | {name, url: .browser_download_url}
+      | select(.name == ("T3-Code-" + ($release.tag_name | sub("^v"; "")) + "-x86_64.AppImage"))
+      | {tag: $release.tag_name, name, url: .browser_download_url}
     ]
-    | first
+    | sort_by(
+        .tag
+        | capture("^v(?<major>[0-9]+)\\.(?<minor>[0-9]+)\\.(?<patch>[0-9]+)-nightly\\.(?<date>[0-9]{8})\\.(?<build>[0-9]+)$")
+        | [(.major | tonumber), (.minor | tonumber), (.patch | tonumber), (.date | tonumber), (.build | tonumber)]
+      )
+    | last
     | if . == null then empty else [.name, .url] | @tsv end
   ')
 
 read -r asset_name asset_url <<< "$release"
 if [[ -z "${asset_name:-}" || -z "${asset_url:-}" ]]; then
-  echo "No T3 Code x86_64 AppImage release asset found" >&2
+  echo "No T3 Code nightly x86_64 AppImage release found" >&2
   exit 1
 fi
 

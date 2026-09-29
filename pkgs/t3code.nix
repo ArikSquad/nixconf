@@ -3,16 +3,17 @@
   fetchurl,
   lib,
   makeDesktopItem,
+  makeWrapper,
   symlinkJoin,
 }:
 
 let
   pname = "t3code";
-  version = "0.0.43-nightly.20260922.2096";
+  version = "0.0.43-nightly.20260929.2428";
 
   src = fetchurl {
     url = "https://github.com/pingdotgg/t3code/releases/download/v${version}/T3-Code-${version}-x86_64.AppImage";
-    hash = "sha256-Ix5Hsda8SyvGv65kvVKUu/yYHpsjB2w8gJ1Ocm9R+Rg=";
+    hash = "sha256-RbeRHm5IIkjUzhCrF0WgrxJ7gHG0vaHJ+3YovZqj5N8=";
   };
 
   app = appimageTools.wrapType2 {
@@ -35,11 +36,14 @@ let
 in
 symlinkJoin {
   inherit pname version;
+  nativeBuildInputs = [ makeWrapper ];
   paths = [
     app
     desktopItem
   ];
   postBuild = ''
+    wrapProgram $out/bin/t3code --set fish_features no-query-term
+
     install -Dm644 ${./t3code.png} \
       $out/share/icons/hicolor/512x512/apps/t3code.png
   '';
