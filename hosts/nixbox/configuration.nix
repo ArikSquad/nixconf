@@ -15,6 +15,7 @@
     ../../modules/programs/fish.nix
     ../../modules/programs/helium.nix
     ../../modules/programs/steam.nix
+    ../../modules/programs/app-vpn.nix
   ];
 
   networking = {

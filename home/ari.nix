@@ -89,16 +89,45 @@
     '';
   };
 
-  # The npm build is newer than nixpkgs' OpenCode package. Run it with the
-  # NixOS glibc loader so the newer client can be used without enabling
-  # nix-ld system-wide.
-  opencodeLauncher = pkgs.writeShellScript "opencode-local" ''
-    npm_opencode="${config.home.homeDirectory}/.npm-global/lib/node_modules/opencode-ai/bin/opencode.exe"
-    if [ -x "$npm_opencode" ]; then
-      exec ${pkgs.glibc}/lib/ld-linux-x86-64.so.2 \
-        --library-path ${pkgs.glibc}/lib \
-        "$npm_opencode" "$@"
+  opencodeNpm = pkgs.writeShellScriptBin "npm" ''
+    install_command=false
+    global_install=false
+    opencode_package=false
+
+    for argument in "$@"; do
+      case "$argument" in
+        install|i) install_command=true ;;
+        --global|-g) global_install=true ;;
+        opencode-ai|opencode-ai@*) opencode_package=true ;;
+      esac
+    done
+
+    if [ "$install_command" = true ] && [ "$global_install" = true ] && [ "$opencode_package" = true ]; then
+      NPM_CONFIG_IGNORE_SCRIPTS=true exec ${pkgs.nodejs_24}/bin/npm "$@"
     fi
+
+    exec ${pkgs.nodejs_24}/bin/npm "$@"
+  '';
+
+  opencodeLauncher = pkgs.writeShellScript "opencode-local" ''
+    export PATH="${opencodeNpm}/bin:$PATH"
+
+    opencode_package="${config.home.homeDirectory}/.npm-global/lib/node_modules/opencode-ai/node_modules"
+    if ${pkgs.gnugrep}/bin/grep -qw avx2 /proc/cpuinfo; then
+      npm_opencode="$opencode_package/opencode-linux-x64/bin/opencode"
+      npm_opencode_fallback="$opencode_package/opencode-linux-x64-baseline/bin/opencode"
+    else
+      npm_opencode="$opencode_package/opencode-linux-x64-baseline/bin/opencode"
+      npm_opencode_fallback="$opencode_package/opencode-linux-x64/bin/opencode"
+    fi
+
+    for candidate in "$npm_opencode" "$npm_opencode_fallback"; do
+      if [ -x "$candidate" ]; then
+        exec ${pkgs.glibc}/lib/ld-linux-x86-64.so.2 \
+          --library-path ${pkgs.glibc}/lib \
+          "$candidate" "$@"
+      fi
+    done
     exec ${pkgs.opencode}/bin/opencode "$@"
   '';
 
