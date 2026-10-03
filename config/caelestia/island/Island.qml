@@ -32,6 +32,11 @@ Scope {
                 screen: modelData
                 targetScreenName: modelData.name
             }
+            LyricsWindow {
+                targetScreenName: modelData.name
+                screen: modelData
+                controller: islandController
+            }
             LauncherWindow {
                 screen: modelData
             }

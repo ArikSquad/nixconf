@@ -12,6 +12,7 @@ import qs.services
 ColumnLayout {
     id: root
     required property var controller
+    required property string screenName
     required property var monitor
     readonly property string mode: controller.mode
     readonly property var player: Players.active
@@ -327,6 +328,13 @@ ColumnLayout {
                     }
                     GlassLabel { text: root.player?.trackAlbum || ""; visible: text.length > 0; color: Tokens.tertiary; font.pixelSize: 11; Layout.fillWidth: true }
                 }
+            }
+            GlassButton {
+                Layout.alignment: Qt.AlignRight
+                text: root.controller.lyricsVisible ? "Hide lyrics" : "Lyrics"
+                enabled: !!root.player?.trackTitle
+                selected: root.controller.lyricsVisible
+                onClicked: root.controller.toggleLyrics(root.screenName)
             }
             Meter {
                 Layout.fillWidth: true

@@ -20,3 +20,4 @@ Symbol 1.0 Symbol.qml
 singleton Tokens 1.0 Tokens.qml
 singleton IslandBridge 1.0 IslandBridge.qml
 WeatherPanel 1.0 WeatherPanel.qml
+LyricsWindow 1.0 LyricsWindow.qml

@@ -168,6 +168,7 @@ PanelWindow {
                 id: content
                 width: parent.width
                 controller: root.controller
+                screenName: root.screen.name
                 monitor: root.monitor
             }
         }

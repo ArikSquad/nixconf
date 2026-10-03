@@ -6,6 +6,8 @@
   username,
   ...
 }: let
+  spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.stdenv.hostPlatform.system};
+
   nativeLibraries = with pkgs; [
     glib
     gtk3
@@ -134,6 +136,7 @@
 in {
   imports = [
     inputs.caelestia-shell.homeManagerModules.default
+    inputs.spicetify-nix.homeManagerModules.default
   ];
 
   home = {
@@ -277,6 +280,21 @@ in {
       obs-vaapi
       obs-gstreamer
       obs-vkcapture
+    ];
+  };
+
+  programs.spicetify = {
+    enable = true;
+    wayland = true;
+
+    theme = spicePkgs.themes.catppuccin;
+    colorScheme = "mocha";
+
+    enabledExtensions = with spicePkgs.extensions; [
+      adblock
+      fullAppDisplay
+      shuffle
+      volumePercentage
     ];
   };
 

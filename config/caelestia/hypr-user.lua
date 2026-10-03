@@ -37,7 +37,7 @@ hl.config({
 -- Island geometry animates in QML. Keep compositor animation from fighting it.
 -- Blur is confined to these small translucent surfaces, never the full screen.
 hl.layer_rule({
-    match = { namespace = "caelestia-(island(-launcher)?|active-pill)" },
+    match = { namespace = "caelestia-(island(-(launcher|lyrics))?|active-pill)" },
     blur = true,
     ignore_alpha = 0.2,
     no_anim = true,

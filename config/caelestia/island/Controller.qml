@@ -30,6 +30,12 @@ Scope {
             root.pulse("controls");
         }
     }
+    property bool lyricsVisible: false
+    property string lyricsScreen: ""
+    function toggleLyrics(screenName) {
+        lyricsScreen = screenName;
+        lyricsVisible = !lyricsVisible;
+    }
     property string page: "idle"
     property string eventMode: ""
     property bool ready: false
