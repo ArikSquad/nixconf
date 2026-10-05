@@ -30,6 +30,16 @@
     (pkgs.lib.makeSearchPathOutput "out" "share/pkgconfig" nativeLibraryClosure)
   ];
 
+  dolphinWithArk = pkgs.symlinkJoin {
+    name = "dolphin-with-ark";
+    paths = [ pkgs.kdePackages.dolphin ];
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    postBuild = ''
+      wrapProgram "$out/bin/dolphin" \
+        --prefix QT_PLUGIN_PATH : "${pkgs.kdePackages.ark}/lib/qt-6/plugins"
+    '';
+  };
+
   #davinci-resolve-base = pkgs.davinci-resolve;
 
   #davinci-resolve-fontconfig = pkgs.writeText "davinci-resolve-fontconfig.conf" ''
@@ -209,10 +219,12 @@ in {
         google-chrome
         termius
         vesktop
+        zed-editor
         adw-gtk3
         papirus-icon-theme
         qtengine
-        kdePackages.dolphin
+        dolphinWithArk
+        kdePackages.ark
         jetbrains-toolbox
         prismlauncher
         chatgpt
@@ -312,6 +324,19 @@ in {
       source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/nixdots/config/nvim";
       recursive = false;
     };
+    "clangd/config.yaml".text = ''
+      If:
+        PathMatch: '.*\.(cc|cpp|cxx|hh|hpp|hxx)$'
+      CompileFlags:
+        Compiler: /etc/profiles/per-user/${username}/bin/g++
+        BuiltinHeaders: QueryDriver
+      Diagnostics:
+        ClangTidy:
+          Add: ['bugprone-*', 'clang-analyzer-*', 'performance-*']
+          FastCheckFilter: Loose
+        UnusedIncludes: Strict
+        MissingIncludes: None
+    '';
     "xdg-terminals.list".text = ''
       com.mitchellh.ghostty.desktop
     '';
@@ -389,6 +414,7 @@ in {
       nil
       nixd
       bash-language-server
+      llvmPackages_23.clang-tools
       stylua
     ];
   };

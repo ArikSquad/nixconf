@@ -186,15 +186,18 @@ PanelWindow {
                                 model: lineItem.modelData.words
                                 Text {
                                     required property var modelData
-                                    readonly property real progress: Math.max(0, Math.min(1,
-                                        (root.position - modelData.time) / Math.max(0.08, modelData.endTime - modelData.time)))
-                                    readonly property bool activeWord: lineItem.active && root.position >= modelData.time && root.position < modelData.endTime
+                                    readonly property real wordDuration: Math.max(0.08, modelData.endTime - modelData.time)
+                                    readonly property real waveStrength: lineItem.active
+                                        ? Math.max(0, 1 - Math.abs(root.position - (modelData.time + modelData.endTime) / 2) / (wordDuration / 2 + 0.75))
+                                        : 0
+                                    readonly property color waveColor: Qt.tint(Tokens.secondary,
+                                        Qt.rgba(Tokens.accent.r, Tokens.accent.g, Tokens.accent.b, waveStrength * 0.55))
                                     text: modelData.text; textFormat: Text.PlainText
-                                    color: activeWord ? Tokens.accent : root.position >= modelData.endTime ? Tokens.text : Tokens.secondary
-                                    scale: activeWord && !Tokens.reducedMotion ? 1 + 0.05 * Math.sin(Math.PI * progress) : 1
+                                    color: root.position >= modelData.endTime ? Tokens.text : waveColor
+                                    scale: !Tokens.reducedMotion ? 1 + 0.025 * waveStrength : 1
                                     transformOrigin: Item.Center
                                     transform: Translate {
-                                        y: activeWord && !Tokens.reducedMotion ? -6 * Math.sin(Math.PI * progress) : 0
+                                        y: !Tokens.reducedMotion ? -3.5 * waveStrength : 0
                                         Behavior on y { NumberAnimation { duration: 50; easing.type: Easing.Linear } }
                                     }
                                     font.family: Tokens.fontFamily; font.pixelSize: 25; font.weight: Tokens.semibold
