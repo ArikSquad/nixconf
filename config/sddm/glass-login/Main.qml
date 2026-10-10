@@ -28,7 +28,7 @@ Pane {
             id: dateLabel
             anchors.horizontalCenter: parent.horizontalCenter
             color: root.secondary
-            font.families: ["SF Pro Display", "SF Pro Text", "Inter"]
+            font.family: "Inter"
             font.pixelSize: Math.max(16, root.height * 0.023)
             font.weight: Font.DemiBold
         }
@@ -36,7 +36,7 @@ Pane {
             id: timeLabel
             anchors.horizontalCenter: parent.horizontalCenter
             color: root.white
-            font.families: ["SF Pro Display", "SF Pro Text", "Inter"]
+            font.family: "Inter"
             font.pixelSize: Math.max(68, root.height * 0.087)
             font.weight: Font.DemiBold
             font.letterSpacing: -2
@@ -57,7 +57,7 @@ Pane {
                 anchors.centerIn: parent
                 text: users.displayText ? users.displayText.charAt(0).toUpperCase() : "A"
                 color: root.white
-                font.families: ["SF Pro Display", "SF Pro Text", "Inter"]
+                font.family: "Inter"
                 font.pixelSize: 38
                 font.weight: Font.DemiBold
             }
@@ -70,7 +70,7 @@ Pane {
             currentIndex: userModel.lastIndex
             textRole: config.UseRealName === "true" ? "realName" : "name"
             valueRole: "name"
-            font.families: ["SF Pro Display", "SF Pro Text", "Inter"]
+            font.family: "Inter"
             font.pixelSize: 17
             font.weight: Font.DemiBold
             contentItem: Label { text: users.displayText; color: root.white; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter; font: users.font }
@@ -88,7 +88,7 @@ Pane {
             horizontalAlignment: Text.AlignHCenter
             echoMode: TextInput.Password
             passwordCharacter: "•"
-            font.families: ["SF Pro Display", "SF Pro Text", "Inter"]
+            font.family: "Inter"
             font.pixelSize: 13
             focus: true
             onAccepted: root.login()
@@ -110,7 +110,7 @@ Pane {
         model: sessionModel
         currentIndex: sessionModel.lastIndex
         textRole: "name"
-        font.families: ["SF Pro Display", "SF Pro Text", "Inter"]
+        font.family: "Inter"
         contentItem: Label { text: sessions.displayText; color: root.white; verticalAlignment: Text.AlignVCenter; leftPadding: 14; font: sessions.font }
         background: Rectangle { radius: 18; color: "#28000000"; border.width: 0.5; border.color: "#30ffffff" }
     }
