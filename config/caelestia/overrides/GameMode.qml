@@ -1,5 +1,3 @@
-pragma Singleton
-
 import QtQuick
 import Quickshell
 import Quickshell.Io
@@ -7,12 +5,13 @@ import Quickshell.Services.UPower
 import Caelestia
 import Caelestia.Config
 import Caelestia.I18n
+import Caelestia.State
 import qs.services
 
-Singleton {
+Scope {
     id: root
 
-    property alias enabled: props.enabled
+    readonly property bool enabled: RuntimeState.gameMode
     property int previousPowerProfile: PowerProfile.Balanced
     property bool hasSavedPowerProfile: false
 
@@ -49,17 +48,9 @@ Singleton {
         }
     }
 
-    PersistentProperties {
-        id: props
-
-        property bool enabled: Hypr.options["animations:enabled"] === 0 // qmllint disable missing-property
-
-        reloadableId: "gameMode"
-    }
-
     Connections {
         function onConfigReloaded(): void {
-            if (props.enabled)
+            if (root.enabled)
                 root.setDynamicConfs();
         }
 
@@ -68,19 +59,19 @@ Singleton {
 
     IpcHandler {
         function isEnabled(): bool {
-            return props.enabled;
+            return RuntimeState.gameMode;
         }
 
         function toggle(): void {
-            props.enabled = !props.enabled;
+            RuntimeState.gameMode = !RuntimeState.gameMode;
         }
 
         function enable(): void {
-            props.enabled = true;
+            RuntimeState.gameMode = true;
         }
 
         function disable(): void {
-            props.enabled = false;
+            RuntimeState.gameMode = false;
         }
 
         target: "gameMode"

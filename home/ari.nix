@@ -173,6 +173,7 @@ in {
         nodejs_24
         jdk25
         bun
+        ngrok
 
         # C/C++ dev
         cmake
@@ -227,12 +228,14 @@ in {
         kdePackages.ark
         jetbrains-toolbox
         prismlauncher
+        blockbench
         chatgpt
         t3code
         # mongodb-compass
 
         # games
         osu-lazer-bin
+        inputs.hytale-launcher.packages.${pkgs.stdenv.hostPlatform.system}.default
       ])
       ++ nativeLibraries;
 
@@ -367,6 +370,7 @@ in {
     enable = true;
     package = inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.caelestia-island;
     cli.enable = true;
+    cli.package = inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.caelestia-cli;
     systemd = {
       # Hyprland starts Caelestia from its startup hook in
       # ~/.config/hypr/hyprland/execs.lua. Do not start a second shell here.

@@ -23,6 +23,11 @@
       url = "github:Gerg-L/spicetify-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    hytale-launcher = {
+      url = "github:JPyke3/hytale-launcher-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -45,15 +50,26 @@
         config.allowUnfree = true;
         overlays = [ overlay ];
       };
+      caelestiaCli =
+        inputs.caelestia-shell.inputs.caelestia-cli.packages.${system}.default.overridePythonAttrs
+          (old: {
+            # The upstream top-level variable is not exported with structured attrs.
+            preBuild = (old.preBuild or "") + ''
+              export SETUPTOOLS_SCM_PRETEND_VERSION=1
+            '';
+          });
+      caelestiaShell = inputs.caelestia-shell.packages.${system}.with-cli.override {
+        caelestia-cli = caelestiaCli;
+        extraRuntimeDeps = [ pkgs.libnotify ];
+      };
     in
     {
       overlays.default = overlay;
 
       packages.${system} = {
+        caelestia-cli = caelestiaCli;
         caelestia-island = import ./pkgs/caelestia-island.nix {
-          upstream = inputs.caelestia-shell.packages.${system}.with-cli.override {
-            extraRuntimeDeps = [ pkgs.libnotify ];
-          };
+          upstream = caelestiaShell;
           design = ./config/caelestia/island;
           # Inter is the packaged fallback for Apple's SF Pro UI metrics.
           font = "${pkgs.inter}/share/fonts/truetype/InterVariable.ttf";

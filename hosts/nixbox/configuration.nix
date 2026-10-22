@@ -26,6 +26,8 @@
 
   services.tailscale.enable = true;
 
+  programs.gamescope.enable = true;
+
   hardware.graphics = {
     enable = true;
     enable32Bit = true; # ???

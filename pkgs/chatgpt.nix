@@ -51,6 +51,7 @@
   qt6,
   stdenv,
   systemdLibs,
+  tpm2-tss,
   wayland,
   wrapGAppsHook3,
   xdg-utils,
@@ -132,6 +133,7 @@ let
     pango
     stdenv.cc.cc
     systemdLibs
+    tpm2-tss
     wayland
     zlib
   ];

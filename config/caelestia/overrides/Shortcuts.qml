@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import Caelestia
+import Caelestia.State
 import qs.components.misc
 import qs.services
 import qs.modules.nexus
@@ -24,7 +25,7 @@ Scope {
         // qmllint enable unresolved-type
         name: "gameMode"
         description: "Toggle game mode"
-        onPressed: GameMode.enabled = !GameMode.enabled
+        onPressed: RuntimeState.gameMode = !RuntimeState.gameMode
     }
 
     // qmllint disable unresolved-type
