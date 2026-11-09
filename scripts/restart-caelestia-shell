@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+instances() {
+    local json
+    json="$(caelestia-shell list --all -j)" || return
+    jq -r '
+        .[]
+        | select(.config_path | endswith("/share/caelestia-shell/shell.qml"))
+        | [.config_path, (.pid | tostring)]
+        | @tsv
+    ' <<<"$json"
+}
+
+running="$(instances)" || exit 1
+while IFS=$'\t' read -r config pid; do
+    [[ -n "${config:-}" && -n "${pid:-}" ]] || continue
+    executable="$(readlink -f "/proc/$pid/exe")" || continue
+    "$executable" -p "${config%/shell.qml}" kill --pid "$pid" || true
+done <<<"$running"
+
+for _ in {1..50}; do
+    running="$(instances)" || exit 1
+    if [[ -z "$running" ]]; then
+        caelestia shell --daemon
+        exit 0
+    fi
+    sleep 0.1
+done
+
+printf 'Caelestia instances did not stop; leaving the shell down to avoid a duplicate.\n' >&2
+exit 1

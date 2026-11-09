@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{ lib, pkgs, ... }: {
   nix = {
     settings = {
       experimental-features = [
@@ -14,7 +14,43 @@
     };
   };
 
+  # Start reclaiming memory from user workloads before the kernel is forced
+  # into a system-wide OOM situation.
+  systemd.oomd = {
+    enable = true;
+    enableUserSlices = true;
+    enableSystemSlice = true;
+  };
+
+  # Keep the policy in the user manager, where per-app kill preferences apply.
+  systemd.slices.user.sliceConfig.ManagedOOMMemoryPressure = lib.mkForce "auto";
+  systemd.slices.system.sliceConfig = {
+    ManagedOOMMemoryPressureLimit = "50%";
+    ManagedOOMMemoryPressureDurationSec = "10s";
+  };
+
+  systemd.user.units."slice".text = lib.mkForce ''
+    [Slice]
+    ManagedOOMMemoryPressure=kill
+    ManagedOOMMemoryPressureLimit=50%
+    ManagedOOMMemoryPressureDurationSec=10s
+  '';
+
+  # UWSM runs Hyprland in this unit; let oomd choose other app cgroups first.
+  systemd.user.services."wayland-wm@" = {
+    overrideStrategy = lib.mkForce "asDropin";
+    serviceConfig.ManagedOOMPreference = "avoid";
+  };
+
   nixpkgs.config.allowUnfree = true;
+
+  programs.nix-ld = {
+    enable = true;
+    libraries = with pkgs; [
+      stdenv.cc.cc
+      ncurses
+    ];
+  };
 
   boot = {
     tmp.cleanOnBoot = true;

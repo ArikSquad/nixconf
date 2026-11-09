@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import "Launcher.js" as Launcher
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Wayland
@@ -19,9 +20,16 @@ PanelWindow {
     property bool launching: false
     property var pendingEntry: null
     readonly property int transitionDuration: Tokens.reducedMotion ? 0 : 180
-    readonly property bool commandMode: search.text.startsWith(CConfig.GlobalConfig.launcher.actionPrefix)
+    readonly property bool commandMode: CConfig.GlobalConfig.launcher.actionPrefix.length > 0 && search.text.startsWith(CConfig.GlobalConfig.launcher.actionPrefix)
+    readonly property var answer: commandMode ? null : Launcher.answer(search.text)
+
+    function moveSelection(delta): void {
+        if (resultList.count > 0)
+            resultList.currentIndex = (resultList.currentIndex + delta + resultList.count) % resultList.count;
+    }
 
     function open(): void {
+        closeTimer.stop();
         retainedVisible = true;
         launching = false;
         openProgress = 1;
@@ -29,13 +37,22 @@ PanelWindow {
     }
 
     function close(): void {
+        launchTimer.stop();
+        pendingEntry = null;
+        launching = false;
         openProgress = 0;
         closeTimer.restart();
     }
 
     function activate(item): void {
-        if (!item)
+        if (!item || launching || !state?.launcher)
             return;
+
+        if (item.kind === "Calculator" || item.kind === "Conversion") {
+            Quickshell.execDetached(["wl-copy", "--", item.value]);
+            state.launcher = false;
+            return;
+        }
 
         if (!commandMode) {
             pendingEntry = item;
@@ -63,7 +80,7 @@ PanelWindow {
     visible: retainedVisible
     color: "transparent"
     anchors.top: true
-    implicitWidth: Math.min(screen.width, 700)
+    implicitWidth: Math.min(screen.width, 820)
     implicitHeight: Math.min(screen.height, 680)
     exclusiveZone: 0
 
@@ -108,7 +125,7 @@ PanelWindow {
         id: launchTimer
         interval: Tokens.fast
         onTriggered: {
-            if (root.pendingEntry)
+            if (root.state?.launcher && root.pendingEntry)
                 Apps.launch(root.pendingEntry);
             root.pendingEntry = null;
             if (root.state)
@@ -126,11 +143,15 @@ PanelWindow {
     Glass {
         id: surface
 
-        width: Math.min(640, root.width - Tokens.padding * 2)
+        width: Math.min(760, root.width - Tokens.padding * 2)
         height: Math.min(548, root.height - 84)
         x: Math.round((root.width - width) / 2)
         y: Math.round(68 + 16 * (1 - root.openProgress))
-        radius: 30
+        radius: 16
+        // Leave the wallpaper visible through Hyprland's backdrop blur.
+        color: Tokens.opaque ? "#171719" : "#78171719"
+        border.width: 1
+        border.color: "#30ffffff"
         opacity: root.openProgress * (root.launching ? 0.72 : 1)
         scale: (0.965 + root.openProgress * 0.035) * (root.launching ? 0.985 : 1)
         transformOrigin: Item.Top
@@ -144,43 +165,23 @@ PanelWindow {
 
         Column {
             anchors.fill: parent
-            anchors.margins: 22
-            spacing: 14
-
-            Row {
-                width: parent.width
-                height: 28
-
-                Text {
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: root.commandMode ? "Commands" : "Applications"
-                    color: Tokens.text
-                    font.family: Tokens.fontFamily
-                    font.pixelSize: Tokens.title
-                    font.weight: Tokens.semibold
-                }
-
-                Item { width: parent.width - 190; height: 1 }
-
-                Text {
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: resultList.count === 1 ? "1 result" : `${resultList.count} results`
-                    color: Tokens.tertiary
-                    font.family: Tokens.fontFamily
-                    font.pixelSize: Tokens.caption
-                }
-            }
+            anchors.margins: 10
+            spacing: 10
 
             Rectangle {
                 width: parent.width
-                height: 48
-                radius: 15
-                color: search.activeFocus ? Tokens.selected : Tokens.control
-                border.width: Tokens.borderWidth
-                border.color: search.activeFocus ? Qt.alpha(Tokens.accent, 0.56) : Tokens.separator
+                height: 66
+                color: "transparent"
 
-                Behavior on color { ColorAnimation { duration: Tokens.fast } }
-                Behavior on border.color { ColorAnimation { duration: Tokens.fast } }
+                Rectangle {
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.bottom: parent.bottom
+                    anchors.leftMargin: -10
+                    anchors.rightMargin: -10
+                    height: 1
+                    color: "#20ffffff"
+                }
 
                 Symbol {
                     anchors.left: parent.left
@@ -196,10 +197,10 @@ PanelWindow {
                     anchors.left: parent.left
                     anchors.leftMargin: 47
                     anchors.verticalCenter: parent.verticalCenter
-                    text: `Search apps or type ${CConfig.GlobalConfig.launcher.actionPrefix} for commands`
-                    color: Tokens.tertiary
+                    text: "Search anything…"
+                    color: "#99ffffff"
                     font.family: Tokens.fontFamily
-                    font.pixelSize: 15
+                    font.pixelSize: 19
                 }
 
                 TextInput {
@@ -211,21 +212,21 @@ PanelWindow {
                     anchors.rightMargin: 15
                     anchors.verticalCenter: parent.verticalCenter
                     color: Tokens.text
-                    selectionColor: Qt.alpha(Tokens.accent, 0.42)
+                    selectionColor: "#40ffffff"
                     selectedTextColor: Tokens.text
                     font.family: Tokens.fontFamily
-                    font.pixelSize: 15
+                    font.pixelSize: 19
                     clip: true
 
-                    onTextChanged: resultList.currentIndex = 0
+                    onTextChanged: Qt.callLater(() => resultList.currentIndex = resultList.count > 0 ? 0 : -1)
                     onAccepted: root.activate(resultList.currentItem?.itemData)
-                    Keys.onUpPressed: resultList.decrementCurrentIndex()
-                    Keys.onDownPressed: resultList.incrementCurrentIndex()
+                    Keys.onUpPressed: root.moveSelection(-1)
+                    Keys.onDownPressed: root.moveSelection(1)
                     Keys.onEscapePressed: if (root.state)
                         root.state.launcher = false
                     Keys.onPressed: event => {
                         if (event.key === Qt.Key_Tab) {
-                            resultList.incrementCurrentIndex();
+                            root.moveSelection(event.modifiers & Qt.ShiftModifier ? -1 : 1);
                             event.accepted = true;
                         }
                     }
@@ -235,7 +236,7 @@ PanelWindow {
 
             Item {
                 width: parent.width
-                height: parent.height - 28 - 48 - 28
+                height: parent.height - 66 - 10
 
                 ListView {
                     id: resultList
@@ -251,15 +252,13 @@ PanelWindow {
                     highlightResizeVelocity: -1
 
                     model: ScriptModel {
-                        values: root.commandMode ? Actions.query(search.text) : Apps.search(search.text)
+                        values: root.commandMode ? Actions.query(search.text) : (root.answer ? [root.answer, ...Apps.search(search.text)] : Apps.search(search.text))
                     }
 
                     highlightFollowsCurrentItem: true
                     highlight: Rectangle {
-                        radius: 14
-                        color: Tokens.selected
-                        border.width: Tokens.borderWidth
-                        border.color: Tokens.separator
+                        radius: 8
+                        color: "#24ffffff"
                     }
 
                     add: Transition {
@@ -286,11 +285,11 @@ PanelWindow {
                         readonly property bool selected: ListView.isCurrentItem
 
                         width: ListView.view.width
-                        height: 50
+                        height: resultItem.modelData?.kind ? 76 : 52
 
                         Rectangle {
                             anchors.fill: parent
-                            radius: 14
+                            radius: 8
                             color: pointer.containsMouse && !resultItem.selected ? Tokens.hover : "transparent"
                             Behavior on color { ColorAnimation { duration: Tokens.fast } }
                         }
@@ -302,14 +301,14 @@ PanelWindow {
                             anchors.verticalCenter: parent.verticalCenter
                             width: 30
                             height: 30
-                            sourceComponent: root.commandMode ? commandIcon : appIcon
+                            sourceComponent: root.commandMode || resultItem.modelData?.kind ? commandIcon : appIcon
                         }
 
                         Column {
                             anchors.left: resultIcon.right
                             anchors.leftMargin: 12
-                            anchors.right: launchGlyph.left
-                            anchors.rightMargin: 10
+                            anchors.right: parent.right
+                            anchors.rightMargin: 16
                             anchors.verticalCenter: parent.verticalCenter
                             spacing: 1
 
@@ -319,31 +318,19 @@ PanelWindow {
                                 color: Tokens.text
                                 elide: Text.ElideRight
                                 font.family: Tokens.fontFamily
-                                font.pixelSize: 14
+                                font.pixelSize: resultItem.modelData?.kind ? 24 : 14
                                 font.weight: resultItem.selected ? Tokens.semibold : Tokens.medium
                             }
 
                             Text {
                                 width: parent.width
-                                text: root.commandMode ? (resultItem.modelData?.desc ?? "") : (resultItem.modelData?.comment || resultItem.modelData?.genericName || "")
+                                text: resultItem.modelData?.kind ? `${resultItem.modelData.kind} · ${resultItem.modelData.desc}` : root.commandMode ? (resultItem.modelData?.desc ?? "") : (resultItem.modelData?.comment || resultItem.modelData?.genericName || "")
                                 visible: text.length > 0
                                 color: Tokens.secondary
                                 elide: Text.ElideRight
                                 font.family: Tokens.fontFamily
                                 font.pixelSize: 11
                             }
-                        }
-
-                        Symbol {
-                            id: launchGlyph
-                            anchors.right: parent.right
-                            anchors.rightMargin: 14
-                            anchors.verticalCenter: parent.verticalCenter
-                            name: root.commandMode ? "arrow.right" : "return"
-                            size: 14
-                            color: resultItem.selected ? Tokens.secondary : Tokens.tertiary
-                            opacity: resultItem.selected || pointer.containsMouse ? 1 : 0
-                            Behavior on opacity { NumberAnimation { duration: Tokens.fast } }
                         }
 
                         MouseArea {
@@ -372,7 +359,7 @@ PanelWindow {
                                 color: Tokens.control
                                 Symbol {
                                     anchors.centerIn: parent
-                                    name: resultItem.modelData?.icon ?? "ellipsis"
+                                    name: resultItem.modelData?.kind ? "equal" : (resultItem.modelData?.icon ?? "ellipsis")
                                     size: 17
                                     color: Tokens.secondary
                                 }
@@ -400,7 +387,6 @@ PanelWindow {
                     }
                 }
             }
-
         }
     }
 }

@@ -28,6 +28,11 @@
       url = "github:JPyke3/hytale-launcher-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    epic-games-launcher = {
+      url = "github:kjetteren/epic-games-launcher-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -87,6 +92,7 @@
         };
         modules = [
           ./hosts/${hostname}/configuration.nix
+          inputs.epic-games-launcher.nixosModules.default
           home-manager.nixosModules.home-manager
           {
             nixpkgs.overlays = [ overlay ];

@@ -12,6 +12,7 @@
     ];
     policies = {
       BrowserSignin = 0;
+      DnsOverHttpsMode = "automatic";
       PasswordManagerEnabled = false;
       SyncDisabled = true;
     };

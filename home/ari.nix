@@ -40,6 +40,21 @@
     '';
   };
 
+  exodusXwayland = pkgs.symlinkJoin {
+    name = "exodus-xwayland";
+    paths = [ pkgs.exodus ];
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    postBuild = ''
+      for executable in Exodus exodus; do
+        rm "$out/bin/$executable"
+        makeWrapper ${pkgs.exodus}/bin/Exodus "$out/bin/$executable" \
+          --set XDG_SESSION_TYPE x11 \
+          --set ELECTRON_OZONE_PLATFORM_HINT x11 \
+          --unset WAYLAND_DISPLAY
+      done
+    '';
+  };
+
   #davinci-resolve-base = pkgs.davinci-resolve;
 
   #davinci-resolve-fontconfig = pkgs.writeText "davinci-resolve-fontconfig.conf" ''
@@ -110,11 +125,12 @@
       case "$argument" in
         install|i) install_command=true ;;
         --global|-g) global_install=true ;;
-        opencode-ai|opencode-ai@*) opencode_package=true ;;
+        @opencode/cli|@opencode/cli@*) opencode_package=true ;;
       esac
     done
 
     if [ "$install_command" = true ] && [ "$global_install" = true ] && [ "$opencode_package" = true ]; then
+      # The postinstall probe runs the binary without the Nix glibc loader.
       NPM_CONFIG_IGNORE_SCRIPTS=true exec ${pkgs.nodejs_24}/bin/npm "$@"
     fi
 
@@ -124,13 +140,13 @@
   opencodeLauncher = pkgs.writeShellScript "opencode-local" ''
     export PATH="${opencodeNpm}/bin:$PATH"
 
-    opencode_package="${config.home.homeDirectory}/.npm-global/lib/node_modules/opencode-ai/node_modules"
+    opencode_package="${config.home.homeDirectory}/.npm-global/lib/node_modules/@opencode/cli/node_modules/@opencode"
     if ${pkgs.gnugrep}/bin/grep -qw avx2 /proc/cpuinfo; then
-      npm_opencode="$opencode_package/opencode-linux-x64/bin/opencode"
-      npm_opencode_fallback="$opencode_package/opencode-linux-x64-baseline/bin/opencode"
+      npm_opencode="$opencode_package/cli-linux-x64/bin/opencode"
+      npm_opencode_fallback="$opencode_package/cli-linux-x64-baseline/bin/opencode"
     else
-      npm_opencode="$opencode_package/opencode-linux-x64-baseline/bin/opencode"
-      npm_opencode_fallback="$opencode_package/opencode-linux-x64/bin/opencode"
+      npm_opencode="$opencode_package/cli-linux-x64-baseline/bin/opencode"
+      npm_opencode_fallback="$opencode_package/cli-linux-x64/bin/opencode"
     fi
 
     for candidate in "$npm_opencode" "$npm_opencode_fallback"; do
@@ -230,10 +246,13 @@ in {
         prismlauncher
         blockbench
         chatgpt
+        exodusXwayland
         t3code
         # mongodb-compass
 
         # games
+        lutris
+        umu-launcher
         osu-lazer-bin
         inputs.hytale-launcher.packages.${pkgs.stdenv.hostPlatform.system}.default
       ])
@@ -246,6 +265,7 @@ in {
     };
 
     sessionPath = [
+      "${opencodeNpm}/bin"
       "${config.home.homeDirectory}/.local/bin"
       "${config.home.homeDirectory}/.npm-global/bin"
     ];

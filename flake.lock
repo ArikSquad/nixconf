@@ -47,6 +47,26 @@
         "type": "github"
       }
     },
+    "epic-games-launcher": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1793967338,
+        "narHash": "sha256-NirET/2PjI4C0SDXnY3eSvvBk9ag8mOXvza9ayNPlzE=",
+        "owner": "kjetteren",
+        "repo": "epic-games-launcher-flake",
+        "rev": "e3dd42f2ddc64bb1db17daa9bbe8ab29012975ee",
+        "type": "github"
+      },
+      "original": {
+        "owner": "kjetteren",
+        "repo": "epic-games-launcher-flake",
+        "type": "github"
+      }
+    },
     "helium": {
       "inputs": {
         "nixpkgs": [
@@ -169,6 +189,7 @@
     "root": {
       "inputs": {
         "caelestia-shell": "caelestia-shell",
+        "epic-games-launcher": "epic-games-launcher",
         "helium": "helium",
         "home-manager": "home-manager",
         "hytale-launcher": "hytale-launcher",

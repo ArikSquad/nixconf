@@ -22,11 +22,17 @@
     hostName = hostname;
     firewall.allowedTCPPorts = [ 3773 ];
     firewall.trustedInterfaces = [ "tailscale0" ];
+    hosts."0.0.0.0" = [
+      "paradise-s1.battleye.com"
+      "test-s1.battleye.com"
+      "paradiseenhanced-s1.battleye.com"
+    ];
   };
 
   services.tailscale.enable = true;
 
   programs.gamescope.enable = true;
+  programs.epic-games-launcher.enable = true;
 
   hardware.graphics = {
     enable = true;
@@ -42,6 +48,13 @@
     enable = true;
     autoPrune.enable = true;
   };
+
+  swapDevices = [
+    {
+      device = "/var/lib/swapfile";
+      size = 12 * 1024; # 12 GiB; NixOS creates a Btrfs-compatible swap file.
+    }
+  ];
 
   users.users.${username} = {
     isNormalUser = true;
