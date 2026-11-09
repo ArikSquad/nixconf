@@ -54,11 +54,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1794049842,
-        "narHash": "sha256-kdhcX+om39Qb5i8dZmgpZLPNIvd19OTdW6ve1Bmguo4=",
+        "lastModified": 1794230615,
+        "narHash": "sha256-oY7XF82ANq2MJqIuoJZkj6JbSfpwngaf2lUWGUeT9SA=",
         "owner": "kjetteren",
         "repo": "epic-games-launcher-flake",
-        "rev": "d74f115ef3b65144cb084e07e02112f8cad847a0",
+        "rev": "0dcb0340cb5575e74da925b3e7dec88c42ef9ee4",
         "type": "github"
       },
       "original": {
