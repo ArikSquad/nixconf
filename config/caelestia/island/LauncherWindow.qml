@@ -218,7 +218,6 @@ PanelWindow {
                     font.pixelSize: 19
                     clip: true
 
-                    onTextChanged: Qt.callLater(() => resultList.currentIndex = resultList.count > 0 ? 0 : -1)
                     onAccepted: root.activate(resultList.currentItem?.itemData)
                     Keys.onUpPressed: root.moveSelection(-1)
                     Keys.onDownPressed: root.moveSelection(1)
@@ -252,29 +251,25 @@ PanelWindow {
                     highlightResizeVelocity: -1
 
                     model: ScriptModel {
-                        values: root.commandMode ? Actions.query(search.text) : (root.answer ? [root.answer, ...Apps.search(search.text)] : Apps.search(search.text))
+                        values: {
+                            if (root.commandMode)
+                                return Actions.query(search.text);
+
+                            const apps = Apps.search(search.text);
+                            const results = root.answer ? [root.answer, ...apps] : apps;
+                            return Launcher.appResults(search.text, results, Apps.search(""), CConfig.GlobalConfig.launcher.specialPrefix);
+                        }
+                        onValuesChanged: {
+                            resultList.currentIndex = resultList.count > 0 ? 0 : -1;
+                            if (resultList.count > 0)
+                                resultList.positionViewAtIndex(0, ListView.Beginning);
+                        }
                     }
 
                     highlightFollowsCurrentItem: true
                     highlight: Rectangle {
                         radius: 8
                         color: "#24ffffff"
-                    }
-
-                    add: Transition {
-                        ParallelAnimation {
-                            NumberAnimation { property: "opacity"; from: 0; to: 1; duration: Tokens.duration }
-                            NumberAnimation { property: "scale"; from: 0.97; to: 1; duration: Tokens.duration; easing.type: Easing.OutCubic }
-                        }
-                    }
-                    remove: Transition {
-                        ParallelAnimation {
-                            NumberAnimation { property: "opacity"; to: 0; duration: Tokens.fast }
-                            NumberAnimation { property: "scale"; to: 0.97; duration: Tokens.fast }
-                        }
-                    }
-                    displaced: Transition {
-                        NumberAnimation { properties: "x,y"; duration: Tokens.duration; easing.type: Tokens.easing }
                     }
 
                     delegate: Item {

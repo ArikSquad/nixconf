@@ -55,7 +55,6 @@
   boot = {
     tmp.cleanOnBoot = true;
     kernelPackages = pkgs.linuxPackages_latest;
-    initrd.systemd.enable = true;
   };
 
   networking.networkmanager.enable = true;

@@ -86,6 +86,36 @@ function format(value) {
     return Number(value.toPrecision(12)).toString();
 }
 
+function appResults(query, ranked, allApps, specialPrefix) {
+    const normalized = query.trim().replace(/\s+/g, ' ').toLocaleLowerCase();
+    if (!normalized || (specialPrefix && normalized.startsWith(`${specialPrefix.toLocaleLowerCase()} `)))
+        return ranked;
+
+    const seen = new Set(ranked.map(app => app.id ?? app.name));
+    const terms = normalized.split(' ');
+    const aliases = allApps.filter(app => {
+        const id = app.id ?? app.name;
+        if (seen.has(id)) return false;
+
+        const fields = [
+            app.name,
+            app.genericName,
+            app.comment,
+            app.id,
+            app.execString,
+            app.startupClass,
+            app.categories,
+            app.keywords
+        ];
+        const searchable = fields.flatMap(value => Array.isArray(value) ? value : [value])
+            .filter(Boolean).join(' ').toLocaleLowerCase();
+        return terms.every(term => searchable.includes(term));
+    });
+
+    aliases.sort((a, b) => String(a.name ?? '').localeCompare(String(b.name ?? ''), undefined, { sensitivity: 'base' }));
+    return [...ranked, ...aliases];
+}
+
 function answer(query) {
     const text = query.trim();
     const conversion = text.match(/^(.+?)\s*([a-z°]+)\s+(?:to|in)\s+([a-z°]+)$/i);
@@ -106,4 +136,4 @@ function answer(query) {
     }
 }
 
-if (typeof module !== 'undefined') module.exports = { calculate, answer };
+if (typeof module !== 'undefined') module.exports = { calculate, answer, appResults };
